@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+	<title>找不同</title>
+	<style>
+	    body{
+	    	margin:0;
+	    	padding: 0;
+	    }
+		#box {
+			background: lightgray;
+			position: relative;
+			box-sizing: border-box;
+		}
+		#up {
+			width: 100%;
+			height:100px;
+			color: black;
+		}
+		#times {
+			width: 50%;
+			float: left;
+			height: 15.1%;
+			font-size: 20px;
+			font-weight: 500;
+			line-height: 50px;
+		}
+		#score {
+			width: 50%;
+			float: right;
+			height: 15.1%;
+			font-size: 20px;
+			font-weight: 500;
+			line-height: 50px;
+			text-align: center;
+		}
+		#btn {
+			width: 100%;
+			height: 7.54%;
+			position: relative;
+			font-size: 25px;
+		}
+		a { 
+			display: block;
+			position: relative;
+			background: #ff7575;
+			text-decoration: none;
+			color: black;
+			width: 27.778%;
+			height: 100%;
+			text-align: center;
+			line-height:40px;
+			left: 50%;
+			margin-left: -11.111%;
+			font-size: 25px;
+			font-weight: 400;
+			border-radius: 10px;
+		}
+		#picbox {
+            position: relative;
+            border-radius: 15px;
+            top: 20px;
+		}
+	 	img {
+	 		float: left;
+	 		margin-left: 8px;
+	 		border-radius: 6px;
+	 		margin-bottom: 8px;
+
+	 	}
+	 	#pic1 {
+	 		width: 100%;
+	 		height: 95%;
+	 		background: #9d9d9d;
+	 		margin-left: 0;
+	 	}
+	 	p {
+	 		padding: 0;
+	 		margin: 0;
+	 		position: absolute;
+	 		height: 14.9925%;
+	 		width: 53.333%;
+	 		background: #ff7575;
+	 		text-align: center;
+	 		font-size: 30px;
+	 		line-height: 55px;
+	 		border-radius: 10px;
+	 		cursor: pointer;
+	 		top: 40%;
+	 		left: 25%;
+	 	}
+	</style>
+</head>
+<body>
+	<div id="box">
+		<div id="up">
+			<div id="times">剩余时间：<span>30秒</span></div>
+			<div id="score">分数：<span>0</span></div>
+		</div>
+		<div id="btn"><a href="javascript:void(0)">开始</a></div>
+		<div id="picbox">
+			<img src="../img/1.png" alt="" id="pic1">
+		</div>
+	</div>
+</body>
+<script>
+    var box = document.querySelector('#box');
+	var arr = ['../img/1.png','../img/2.png'];
+	var color = ['#ff7575','#9999cc','#c4e1ff','#ff5809','#81c0c0','#dddfff']
+	var picbox = document.querySelector('#picbox');
+	var imgsc = picbox.children;
+	var start = document.querySelector('a');
+	var span = document.querySelectorAll('span');
+    var daoTimer = null;
+	var lasttime = 30;
+	var num = 1;
+	var bol = true;
+	box.style.width = document.documentElement.clientWidth+'px';
+    box.style.height = document.documentElement.clientHeight+'px';
+    picbox.style.width = document.documentElement.clientWidth+'px';
+    picbox.style.height = document.documentElement.clientWidth+'px';
+	//随机数
+	function rand(min,max){
+		return parseInt(Math.random()*(max-min)+min);
+	}
+
+	start.onclick = function(){
+        bol = true;
+		start.style.display = 'none';
+		runtime();
+		removeImg()
+	    creatImg();
+	}
+	function runtime(){
+       daoTimer = setInterval(function(){
+       		lasttime=lasttime-0.01;
+       		span[0].innerHTML = lasttime.toFixed(2)+'秒';
+       		if (lasttime<=0) {
+       			span[0].innerHTML = '0秒';
+    			clearInterval(daoTimer);
+    			gameover();
+       		}
+       },10)
+	};
+	function gameover(){
+	   var over = document.createElement('p');
+	   picbox.appendChild(over);
+	   over.innerHTML = '游戏结束';
+	   bol=false;
+	   over.onclick = function(){
+		   	picbox.removeChild(over);
+		   	start.style.display = 'block';
+		   	num = 1;
+		   	lasttime=30;
+		   	
+	        span[0].innerHTML = '30秒';
+		   	span[1].innerHTML = 0;
+		   	picbox.innerHTML = '';
+		   	picbox.innerHTML = '<img src="../img/1.png" alt="" id="pic1">';
+		   	picbox.style.background='none';
+		   	console.log(pic1.removeAttribute('disabled'));
+	   }
+   };
+	function creatImg(){
+         num++;
+         if (num>=9) {
+         	num= 9;
+         }
+         var picnums = Math.pow(num,2);
+         var piccun =[];
+         for(var i =0;i<picnums;i++){
+	         var imgs = document.createElement('img');
+	         imgs.style.width = (document.documentElement.clientWidth-8*num-8)/num+'px';
+	         imgs.src = arr[0];
+	         imgs.style.background = color[0];
+	         piccun.push(imgs);
+         };
+         var first = color[0];
+         color.shift();
+         color.push(first);
+         var fangs = rand(0,picnums);
+         piccun[fangs].src = arr[1];
+
+         piccun[fangs].onclick = function(){
+     		if (bol==false) {
+	   			return false;	
+   			}
+         span[1].innerHTML = parseInt(span[1].innerHTML)+1;
+          	removeImg()
+            creatImg();
+          }
+         for(var i = 0;i<piccun.length;i++){
+         	picbox.appendChild(piccun[i]);
+         } 
+	};
+
+    function removeImg(){
+    	picbox.innerHTML ='';
+    }
+</script>
+</html>

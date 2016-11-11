@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>打灰太狼</title>
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+
+	<style>
+		#backg {
+			width: 320px;
+			height: 480px;
+			background: url(img/game_bg.jpg),no-repeat;
+			margin: 100px auto;
+			position: relative;
+		}
+		#red {
+			width: 180px;
+			height: 16px;
+			position: relative;
+			top: 66px;
+			left: 63px;
+			overflow: hidden;
+		}
+		#wolfs img{
+			position: absolute;
+			top: 293px;
+			left: 205px;
+			cursor: pointer;
+		}
+		#count {
+			position: absolute;
+			left: 60px;
+			color: rgb(131,164,232);
+			font-size: 20px;
+		}
+		#menu,#result{
+			position: absolute;
+			width: 100%;
+			color: black;
+			font-size: 50px;
+			top: 50%;
+			text-align: center;
+			margin-top: -30px;
+			font-weight: 500;
+			cursor: pointer;
+
+		}
+	</style>
+</head>
+<body>
+	<div id="backg">
+		<div id="red">
+			<img src="img/progress.png" alt="">
+		</div>
+		<div id="wolfs">
+		    <!-- <img src="../img/h0.png" alt=""> -->
+	    </div>
+	    <div id="count">0</div>
+	    <div id="menu">来保卫🐑村吧</div>
+	    <div id="result" style="display:none;"></div>
+	</div>
+	
+	
+</body>
+<script src='../js/tween.js'></script>
+<script>
+    var wolfs = document.querySelector('#wolfs');
+    var arr = [{t:'110px',l:'100px'},{t:'155px',l:'20px'},{t:'138px',l:'188px'},{t:'190px',l:'105px'},{t:'110px',l:'100px'},{t:'220px',l:'18px'},{t:'210px',l:'200px'},{t:'273px',l:'120px'},{t:'292px',l:'30px'},{t:'293px',l:'205px'}];
+    var menu = document.querySelector('#menu');
+    var red = document.querySelector('#red');
+    var count = document.querySelector('#count');
+    var result = document.querySelector('#result');
+    
+
+    function rand(min,max){
+		return parseInt(Math.random()*(max-min)+min)
+		};
+	var wappearTimer = null;
+	var upTimer = null;
+	var downTimer = null;
+    
+
+    menu.onclick = function(){
+    	count.innerHTML = 0;
+    	menu.style.display = 'none';
+		wappearTimer = setInterval(function(){
+			var oimg = document.createElement('img');
+			//取随机数 来看
+			oimg.type = rand(0,100)>70?'x':"h";// 这个地方不能用var 因为是属性的操作 而不是赋值
+			oimg.index = 0;
+			oimg.src = 'img/'+oimg.type+oimg.index+'.png';
+	        
+	        var newwolfs = wolfs.children;
+	        var bol = true;
+	        while (bol){
+	        	var r = rand(0,arr.length);
+	        	for(var i = 0;i<newwolfs.length;i++){
+	        		if (newwolfs[i].offsetLeft==parseInt(arr[r].l)) {
+	        			break;
+	        		}
+	        	}
+	        	if (i==newwolfs.length) {
+	        		bol = false;
+	        	}
+	        }
+	        oimg.style.top = arr[r].t;
+	        oimg.style.left = arr[r].l;
+	        wolfs.appendChild(oimg);
+	        var upTimer = null;
+	        upTimer = setInterval(function(){
+	        	oimg.index++;
+	        	if (oimg.index>4) {
+	        		clearInterval(upTimer);
+	        		down();
+	        	}
+	        	oimg.src = 'img/'+oimg.type+oimg.index+'.png';
+	        },150);
+
+	        var downTimer = null;
+	        function down(){
+
+	       	 downTimer = setInterval(function(){
+	        	oimg.index--;
+	        	if (oimg.index<=0) {
+	        		clearInterval(downTimer);
+	        		wolfs.removeChild(oimg);
+	        	}
+	        	oimg.src = 'img/'+oimg.type+oimg.index+'.png';
+	        },100);
+	       };
+	        
+	       var clearTime = null;
+	       var clearBol = true;
+	       
+	       oimg.onclick = function(){
+
+	       		if (clearBol==false) {
+	       			return;
+	       		}
+	       		clearBol = false;
+	       		//判断出来的是大狼还是小狼 然后算分数是加还是减
+	       		if (oimg.type=='h') {
+	       			count.innerHTML =parseInt(count.innerHTML)+10;
+	       		   }
+	       		
+	       		 else{count.innerHTML =parseInt(count.innerHTML)-10;}
+	       		
+	       		
+	       	    clearInterval(upTimer);
+	       	    clearInterval(downTimer);
+	       	    oimg.index=5;
+	       	    clearTime = setInterval(function(){
+	       	    	oimg.index++;
+	       	    	if (oimg.index>=9) {
+	       	    		clearInterval(clearTime);
+	       	    		wolfs.removeChild(oimg);
+	       	    	}
+	       	    	oimg.src = 'img/'+oimg.type+oimg.index+'.png';
+	       	    	
+	       	    },150)
+	       };
+	       
+		},400) ;
+		 var redTimer = null;
+	    redTimer = setInterval(function(){
+			
+			if (red.offsetWidth>0) {
+				red.style.width = red.offsetWidth-2+'px';
+				
+			}else{
+				if (parseInt(count.innerHTML)<100) {
+					
+					result.style.display = 'block';
+					result.innerHTML = '美羊羊被灰太狼抓走了';
+					result.onclick = function(){
+						menu.style.display = 'block';
+						result.style.display = 'none';
+					}
+				   clearInterval(redTimer);
+				   clearInterval(wappearTimer);
+				}else if(parseInt(count.innerHTML)<150){
+					result.style.display = 'block';
+					result.innerHTML = '差一点就可以保卫🐑村了';
+					result.onclick = function(){
+						menu.style.display = 'block';
+						result.style.display = 'none';
+					}
+			        clearInterval(redTimer);
+			        clearInterval(wappearTimer);
+				}else{
+					result.style.display = 'block';
+					result.innerHTML = '美美的喜洋洋，成功保卫🐑村';
+					result.onclick = function(){
+						menu.style.display = 'block';
+						result.style.display = 'none';
+					}
+			        clearInterval(redTimer);
+			        clearInterval(wappearTimer);
+				}
+				
+				red.style.width = 180 + "px";
+
+			}
+		 },100);
+       };
+
+	// function rand(min,max){
+	// 	return parseInt(Math.random()*(max-min)+min)
+	// };
+	// var num = rand(0,100);
+    
+ //    //狼上来
+	// var upTimer = null;
+	// var downTimer = null;
+	// var index = 0;
+	// upTimer = setInterval(function(){
+	// 	index++;
+	// 	if (index>4) {
+	// 		clearInterval(upTimer);
+	// 		downFn();
+	// 	}
+ //        if (num>70) {
+ //        	oimg.src = "../img/x"+index+".png";
+ //        }else{
+ //        	oimg.src = "../img/h"+index+".png";
+ //        }
+		
+	// },150);	
+ //     //狼下去
+	//  function downFn(){
+	//     downTimer = setInterval(function(){
+	// 	index--;
+	// 	    if (index<=0) {
+	// 		  clearInterval(upTimer);
+	// 		  index = 0;
+	// 	    }
+	// 	   if (num>70) {
+ //        	oimg.src = "../img/x"+index+".png";
+ //           }else{
+ //        	oimg.src = "../img/h"+index+".png";
+ //           }
+	//     },150)
+ //    };
+ //    //打击狼
+ //    var clickTimer = null; 
+ //    oimg.onclick = function(){
+ //    	clearInterval(upTimer);
+ //        clearInterval(downTimer);
+ //    	var index = 5;
+ //        clickTimer = setInterval(function(){
+ //        	index++;
+ //        	if (index>=9) {
+ //        		clearInterval(clickTimer);
+ //        		// document.body.removeChild(oimg);
+ //        		oimg.src = "../img/h0.png";
+ //        		console.log(oimg.src);
+ //        	}
+ //        	if (num>70) {
+ //        	oimg.src = "../img/x"+index+".png";
+ //            }else{
+ //        	oimg.src = "../img/h"+index+".png";
+ //            }
+ //        },100)
+ //    }
+</script>
+</html>
